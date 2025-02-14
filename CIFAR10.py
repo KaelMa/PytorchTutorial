@@ -92,7 +92,15 @@ def train():
                 print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
                 running_loss = 0.0
     print('Finished Training')
+
+    # 保存模型
     torch.save(net.state_dict(), PATH)
+
+    # 保存为 ONNX 格式
+    dummy_input = torch.randn(1, 3, 32, 32)  # 创建一个虚拟输入张量
+    torch.onnx.export(net, dummy_input, "cifar10.onnx", export_params=True, opset_version=11, do_constant_folding=True,
+                      input_names=['input'], output_names=['output'],
+                      dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}})
 
 
 def infer():
